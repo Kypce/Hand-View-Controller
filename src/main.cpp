@@ -1,68 +1,31 @@
 #include <Arduino.h>
+#include <SoftwareSerial.h>
+#include <AccelStepper.h>
 
-/*
- *   Basic example code for controlling a stepper without library
- *
- *   by Dejan, https://howtomechatronics.com
- */
-
-// defines pins
-#define stepPin 5
-#define dirPin 4
-#define stepPin2 3
-#define dirPin2 2
+SoftwareSerial Bluetooth(10, 9); // RX, TX
+AccelStepper stepper1(1, 3, 2);
+AccelStepper stepper2(1, 5, 4);
 
 void setup()
 {
-  // Sets the two pins as Outputs
-  pinMode(stepPin, OUTPUT);
-  pinMode(dirPin, OUTPUT);
-  pinMode(stepPin2, OUTPUT);
-  pinMode(dirPin2, OUTPUT);
+  Bluetooth.begin(9600);
+  Serial.begin(9600);
+  Serial.println("Waiting for command...");
+  stepper1.setMaxSpeed(1000);
+  stepper2.setMaxSpeed(1000);
+  stepper1.setSpeed(0);
+  stepper2.setSpeed(0);
 }
+
 void loop()
 {
-  digitalWrite(dirPin, HIGH); // Enables the motor to move in a particular direction
-  // Makes 200 pulses for making one full cycle rotation
-  for (int x = 0; x < 200; x++)
-  {
-    digitalWrite(stepPin, HIGH);
-    delayMicroseconds(700); // by changing this time delay between the steps we can change the rotation speed
-    digitalWrite(stepPin, LOW);
-    delayMicroseconds(700);
+  if (Bluetooth.available())
+  { // wait for data received
+    int data = Bluetooth.read();
+    Serial.println(data);
+    stepper1.setSpeed((data / 2) * 100);
+    stepper2.setSpeed((data / 2) * 100);
   }
-  delay(1000); // One second delay
-
-  digitalWrite(dirPin, LOW); // Changes the rotations direction
-  // Makes 400 pulses for making two full cycle rotation
-  for (int x = 0; x < 400; x++)
-  {
-    digitalWrite(stepPin, HIGH);
-    delayMicroseconds(500);
-    digitalWrite(stepPin, LOW);
-    delayMicroseconds(500);
-  }
-  delay(1000);
-
-  digitalWrite(dirPin2, HIGH); // Enables the motor to move in a particular direction
-  // Makes 200 pulses for making one full cycle rotation
-  for (int x = 0; x < 200; x++)
-  {
-    digitalWrite(stepPin2, HIGH);
-    delayMicroseconds(700); // by changing this time delay between the steps we can change the rotation speedv
-    digitalWrite(stepPin2, LOW);
-    delayMicroseconds(700);
-  }
-  delay(1000); // One second delay
-
-  digitalWrite(dirPin2, LOW); // Changes the rotations direction
-  // Makes 400 pulses for making two full cycle rotation
-  for (int x = 0; x < 400; x++)
-  {
-    digitalWrite(stepPin2, HIGH);
-    delayMicroseconds(500);
-    digitalWrite(stepPin2, LOW);
-    delayMicroseconds(500);
-  }
-  delay(1000);
+  stepper1.runSpeed();
+  stepper2.runSpeed();
 }
