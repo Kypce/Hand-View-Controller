@@ -2,6 +2,8 @@
 #include <SoftwareSerial.h>
 #include <AccelStepper.h>
 
+// hi
+
 SoftwareSerial Bluetooth(10, 9); // RX, TX
 AccelStepper stepper1(1, 3, 2);
 AccelStepper stepper2(1, 5, 4);
