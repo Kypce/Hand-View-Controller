@@ -2,7 +2,7 @@
 #include <SoftwareSerial.h>
 #include <AccelStepper.h>
 
-// hi
+// hi Gabriel
 
 SoftwareSerial Bluetooth(10, 9); // RX, TX
 AccelStepper stepper1(1, 3, 2);
