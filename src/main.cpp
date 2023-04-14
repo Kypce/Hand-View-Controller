@@ -2,11 +2,11 @@
 #include <SoftwareSerial.h>
 #include <AccelStepper.h>
 
-// Defined "home_switches" for resetting the spinner and pins
+// Define "home_switches" for resetting the spinner and pins
 #define x_home_switch 7
 #define y_home_switch 8
 
-// GLOBAL VARIABLE DECLARATIONS
+// *** GLOBAL VARIABLE DECLARATIONS
 // Setup the pin grid size
 const int x = 3;
 const int y = 3;
@@ -18,9 +18,7 @@ int pinStates[quadrantNumbers];
 // Setup the current x/y position
 int currX;
 int currY;
-// END OF GLOBAL DECLARATIONS
-
-// KING KIRBY
+// *** END OF GLOBAL DECLARATIONS
 
 // Setup bluetooth connection and stepper motors 1 and 2
 SoftwareSerial Bluetooth(10, 9); // RX, TX
@@ -35,7 +33,11 @@ void resetSpinner() {
   pinMode(y_home_switch, INPUT_PULLUP);
 
   Serial.println("Stepper motors are homing to start position . . .");
-  while(digitalRead(x_home_switch) && digitalRead(y_home_switch)) {
+  while(digitalRead(x_home_switch)) {
+    //TODO
+  }
+
+  while(digitalRead(y_home_switch)) {
     //TODO
   }
 }
@@ -44,7 +46,20 @@ void resetSpinner() {
 void resetPins() {
   stepper1.setSpeed(100);
   stepper2.setSpeed(100);
+
   //Sequence to reset all pins
+  //TODO
+
+  // Reset back to start position
+  resetSpinner();
+}
+
+// Reset x/y position variables and pinStates' values`
+void resetPositionValues() {
+  currX = 0;
+  currY = 0;
+  for(int i = 0; i < sizeof(pinStates); i++)
+    pinStates[i] = 0;
 }
 
 // Will move to state change pins and initiate them
@@ -81,15 +96,10 @@ void setup() {
   Serial.begin(9600);
   Serial.println("Waiting for command...");
 
-  // Call reset() function to reset position
+  // Call reset() functions to reset position and corresponding values
   resetSpinner();
   resetPins();
-
-  // Reset x/y position variables and pinStates' values`
-  currX = 0;
-  currY = 0;
-  for(int i = 0; i < sizeof(pinStates); i++)
-    pinStates[i] = 0;
+  resetPositionValues();
 }
 
 void loop() {
