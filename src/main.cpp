@@ -1,68 +1,124 @@
 #include <Arduino.h>
+#include <SoftwareSerial.h>
+#include <AccelStepper.h>
 
-/*
- *   Basic example code for controlling a stepper without library
- *
- *   by Dejan, https://howtomechatronics.com
- */
+// Define "home_switches" for resetting the spinner and pins
+#define x_home_switch 7
+#define y_home_switch 8
 
-// defines pins
-#define stepPin 5
-#define dirPin 4
-#define stepPin2 3
-#define dirPin2 2
+// *** GLOBAL VARIABLE DECLARATIONS
+// Setup the pin grid size
+const int x = 3;
+const int y = 3;
+const int quadrantNumbers = x * y;
+
+// Size 16 array for the states of the pins (0 = off, 1 = half, 2 = full)
+int pinStates[quadrantNumbers];
+
+// Setup the current x/y position
+int currX;
+int currY;
+// *** END OF GLOBAL DECLARATIONS
+
+// Setup bluetooth connection and stepper motors 1 and 2
+SoftwareSerial Bluetooth(0, 1); // RX, TX
+AccelStepper stepper1(1, 2, 3);
+AccelStepper stepper2(1, 4, 5);
+
+// Will reset the spinner to the "first position"
+void resetSpinner()
+{
+  stepper1.setSpeed(100);
+  stepper2.setSpeed(100);
+  pinMode(x_home_switch, INPUT_PULLUP);
+  pinMode(y_home_switch, INPUT_PULLUP);
+
+  Serial.println("Stepper motors are homing to start position . . .");
+  while (digitalRead(x_home_switch))
+  {
+    // TODO
+  }
+
+  while (digitalRead(y_home_switch))
+  {
+    // TODO
+  }
+}
+
+// Will reset all pins to their off position
+void resetPins()
+{
+  stepper1.setSpeed(100);
+  stepper2.setSpeed(100);
+
+  // Sequence to reset all pins
+  // TODO
+
+  // Reset back to start position
+  resetSpinner();
+}
+
+// Reset x/y position variables and pinStates' values`
+void resetPositionValues()
+{
+  currX = 0;
+  currY = 0;
+  for (int i = 0; i < sizeof(pinStates); i++)
+    pinStates[i] = 0;
+}
+
+// Will move to state change pins and initiate them
+void updatePinStates(int *stateChanges)
+{
+  // TODO
+
+  Serial.println("Updating pins to reflect the current environment . . .");
+}
+
+// Will compare the current pin states to the new pin states and return an array of the updated positions
+int *pinStateChanges(int *currStates, int *newStates)
+{
+  int stateChanges[16];
+  int index = 0;
+
+  Serial.println("Obtaining the pin positions that have a state change . . .");
+  for (int i = 0; i < sizeof(currStates); i++)
+  {
+    if (currStates[i] != newStates[i])
+    {
+      stateChanges[index] = i;
+      index++;
+    }
+  }
+
+  return stateChanges;
+}
 
 void setup()
 {
-  // Sets the two pins as Outputs
-  pinMode(stepPin, OUTPUT);
-  pinMode(dirPin, OUTPUT);
-  pinMode(stepPin2, OUTPUT);
-  pinMode(dirPin2, OUTPUT);
+  Bluetooth.begin(9600);
+  Serial.begin(9600);
+  Serial.println("Waiting for command...");
+  stepper1.setMaxSpeed(1000);
+  stepper2.setMaxSpeed(1000);
+  stepper1.setSpeed(0);
+  stepper2.setSpeed(0);
+
+  // Call reset() functions to reset position and corresponding values
+  // resetSpinner();
+  // resetPins();
+  // resetPositionValues();
 }
+
 void loop()
 {
-  digitalWrite(dirPin, HIGH); // Enables the motor to move in a particular direction
-  // Makes 200 pulses for making one full cycle rotation
-  for (int x = 0; x < 200; x++)
-  {
-    digitalWrite(stepPin, HIGH);
-    delayMicroseconds(700); // by changing this time delay between the steps we can change the rotation speed
-    digitalWrite(stepPin, LOW);
-    delayMicroseconds(700);
+  if (Bluetooth.available())
+  { // wait for data received
+    int data = Bluetooth.read();
+    Serial.println((data / 2) * 100);
+    stepper1.setSpeed((data / 2) * 100);
+    stepper2.setSpeed((data / 2) * 100);
   }
-  delay(1000); // One second delay
-
-  digitalWrite(dirPin, LOW); // Changes the rotations direction
-  // Makes 400 pulses for making two full cycle rotation
-  for (int x = 0; x < 400; x++)
-  {
-    digitalWrite(stepPin, HIGH);
-    delayMicroseconds(500);
-    digitalWrite(stepPin, LOW);
-    delayMicroseconds(500);
-  }
-  delay(1000);
-
-  digitalWrite(dirPin2, HIGH); // Enables the motor to move in a particular direction
-  // Makes 200 pulses for making one full cycle rotation
-  for (int x = 0; x < 200; x++)
-  {
-    digitalWrite(stepPin2, HIGH);
-    delayMicroseconds(700); // by changing this time delay between the steps we can change the rotation speedv
-    digitalWrite(stepPin2, LOW);
-    delayMicroseconds(700);
-  }
-  delay(1000); // One second delay
-
-  digitalWrite(dirPin2, LOW); // Changes the rotations direction
-  // Makes 400 pulses for making two full cycle rotation
-  for (int x = 0; x < 400; x++)
-  {
-    digitalWrite(stepPin2, HIGH);
-    delayMicroseconds(500);
-    digitalWrite(stepPin2, LOW);
-    delayMicroseconds(500);
-  }
-  delay(1000);
+  stepper1.runSpeed();
+  stepper2.runSpeed();
 }
