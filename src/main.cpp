@@ -15,11 +15,11 @@ const int y = 4;
 const int quadrantTotal = x * y;
 
 // mm for rotation
-  // moveTo(800) == full rotation
+// moveTo(800) == full rotation
 long stepsMoveX = 16.98;
 // mm for side-to-side
-  // This moves it 1 mm when used in moveTo()
-long stepsMoveY = 273.97 / 2;
+// This moves it 1 mm when used in moveTo()
+long stepsMoveY = 273.97;
 
 // Size 16 array for the states of the pins (0 = off, 1 = half, 2 = full)
 int pinStates[quadrantTotal];
@@ -50,6 +50,8 @@ void resetSpinner()
   }
   stepperTop.setCurrentPosition(0);
   stepperBottom.setCurrentPosition(0);
+  stepperTop.setSpeed(2000);
+  stepperBottom.setSpeed(2000);
 }
 
 // Will reset all pins to their off position
@@ -98,19 +100,17 @@ void updatePinStates(int *stateChanges)
 */
 
 // Moves side-to-side "len" mm amount
-void sideMM(int len) 
+void sideMM(int len)
 {
   unsigned long starttime = millis();
   unsigned long endtime = starttime;
   while ((endtime - starttime) <= 3000) // do this loop for up to 1000mS
   {
-  // code here
-  // Moving 5 mm side-to-side
-  stepperTop.moveTo(stepsMoveY * len);
-  stepperBottom.moveTo(-stepsMoveY * len);
-  stepperTop.run();
-  stepperBottom.run();
-  endtime = millis();
+    // code here
+    // Moving 5 mm side-to-side
+    stepperTop.moveTo(stepsMoveY * len);
+    stepperTop.run();
+    endtime = millis();
   }
 
   delay(1000);
@@ -119,14 +119,12 @@ void sideMM(int len)
   endtime = starttime;
   while ((endtime - starttime) <= 3000) // do this loop for up to 1000mS
   {
-  // code here
-  stepperTop.moveTo(-stepsMoveY * len);
-  stepperBottom.moveTo(stepsMoveY * len);
-  stepperTop.run();
-  stepperBottom.run();
-  endtime = millis();
+    // code here
+    stepperTop.moveTo(-stepsMoveY * len);
+    stepperTop.run();
+    endtime = millis();
   }
-  
+
   delay(1000);
 }
 
@@ -135,8 +133,8 @@ void setup()
   Bluetooth.begin(9600);
   Serial.begin(9600);
   Serial.println("Waiting for command...");
-  stepperTop.setMaxSpeed(1000);
-  stepperBottom.setMaxSpeed(1000);
+  stepperTop.setMaxSpeed(4000);
+  stepperBottom.setMaxSpeed(4000);
   stepperTop.setAcceleration(6000);
   stepperBottom.setAcceleration(6000);
   stepperTop.setSpeed(0);
@@ -150,10 +148,5 @@ void setup()
 
 void loop()
 {
-  //sideFiveMM(5);
-
-  stepperTop.moveTo(200);
-  stepperBottom.moveTo(200);
-  stepperTop.run();
-  stepperBottom.run();
+  sideMM(10);
 }
