@@ -5,14 +5,21 @@
 
 // Define "home_switches" for resetting the spinner and pins
 
+// Rotation => Same sign for both moveTo() functions
+// Side-to-side => opposite signs for moveTo() functions
+
 // *** GLOBAL VARIABLE DECLARATIONS
 // Setup the pin grid size
 const int x = 4;
 const int y = 4;
 const int quadrantTotal = x * y;
 
+// mm for rotation
+  // moveTo(800) == full rotation
 long stepsMoveX = 16.98;
-long stepsMoveY = 273.97;
+// mm for side-to-side
+  // This moves it 1 mm when used in moveTo()
+long stepsMoveY = 273.97 / 2;
 
 // Size 16 array for the states of the pins (0 = off, 1 = half, 2 = full)
 int pinStates[quadrantTotal];
@@ -71,7 +78,7 @@ void updatePinStates(int *stateChanges)
 }
 
 // Will compare the current pin states to the new pin states and return an array of the updated positions
-int *pinStateChanges(int *currStates, int *newStates)
+/*int *pinStateChanges(int *currStates, int *newStates)
 {
   int stateChanges[16];
   int index = 0;
@@ -87,6 +94,40 @@ int *pinStateChanges(int *currStates, int *newStates)
   }
 
   return stateChanges;
+}
+*/
+
+// Moves side-to-side "len" mm amount
+void sideMM(int len) 
+{
+  unsigned long starttime = millis();
+  unsigned long endtime = starttime;
+  while ((endtime - starttime) <= 3000) // do this loop for up to 1000mS
+  {
+  // code here
+  // Moving 5 mm side-to-side
+  stepperTop.moveTo(stepsMoveY * len);
+  stepperBottom.moveTo(-stepsMoveY * len);
+  stepperTop.run();
+  stepperBottom.run();
+  endtime = millis();
+  }
+
+  delay(1000);
+
+  starttime = millis();
+  endtime = starttime;
+  while ((endtime - starttime) <= 3000) // do this loop for up to 1000mS
+  {
+  // code here
+  stepperTop.moveTo(-stepsMoveY * len);
+  stepperBottom.moveTo(stepsMoveY * len);
+  stepperTop.run();
+  stepperBottom.run();
+  endtime = millis();
+  }
+  
+  delay(1000);
 }
 
 void setup()
@@ -109,8 +150,10 @@ void setup()
 
 void loop()
 {
-  stepperTop.moveTo(-1369.85);
-  stepperBottom.moveTo(1369.85);
+  //sideFiveMM(5);
+
+  stepperTop.moveTo(200);
+  stepperBottom.moveTo(200);
   stepperTop.run();
   stepperBottom.run();
 }
