@@ -294,4 +294,11 @@ void loop()
     i++;
     go = false;
   }
+
+  /*  ??? IDK IF THIS IS RIGHT ???
+  if(Bluetooth.available()) {
+    int data = Bluetooth.read();
+    moveTo(data);
+  }
+  */
 }
