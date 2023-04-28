@@ -11,7 +11,6 @@
 // Negative moves it "up" while positive moves it "down" (from perspective of holding it)
 
 // *** GLOBAL VARIABLE DECLARATIONS
-// Setup the pin grid size
 const int x = 4;
 const int y = 4;
 const int quadrantTotal = x * y;
