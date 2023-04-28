@@ -11,8 +11,8 @@
 // Negative moves it "up" while positive moves it "down" (from perspective of holding it)
 
 // *** GLOBAL VARIABLE DECLARATIONS
-const int x = 4;
-const int y = 4;
+const int x = 3;
+const int y = 3;
 const int quadrantTotal = x * y;
 
 // mm for rotation
@@ -20,7 +20,7 @@ const int quadrantTotal = x * y;
 long stepsMoveX = 16.98;
 // mm for side-to-side
 // This moves it 1 mm when used in moveTo()
-long stepsMoveY = 273.97;
+long stepsMoveY = 274;
 
 // Size 16 array for the states of the pins (0 = off, 1 = half, 2 = full)
 int pinStates[quadrantTotal];
@@ -34,16 +34,10 @@ AccelStepper stepperTop(1, 2, 3);
 AccelStepper stepperBottom(1, 4, 5);
 ezButton limitSwitch(6);
 
-// Literally does nothing, used to psuedo-break out of void loop()
-void doNothing()
-{
-  return;
-}
-
 // Will reset the spinner to the "first position"
 void resetSpinner()
 {
-  stepperTop.setSpeed(800);
+  stepperTop.setSpeed(1200);
   stepperBottom.setSpeed(600);
 
   Serial.println("Stepper motors are homing to start position . . .");
@@ -58,168 +52,219 @@ void resetSpinner()
     stepperTop.runSpeed();
     stepperBottom.runSpeed();
   }
-  stepperTop.setSpeed(-600);
-  unsigned long starttime = millis();
-  unsigned long endtime = starttime;
-  while ((endtime - starttime) <= 200)
-  {
-    stepperTop.moveTo(0.1);
-    stepperTop.run();
-    endtime = millis();
-  }
+
   stepperTop.setCurrentPosition(0);
   stepperBottom.setCurrentPosition(0);
   stepperTop.setSpeed(2000);
   stepperBottom.setSpeed(2000);
-}
 
-// Will reset all pins to their off position
-void resetPins()
-{
-  stepperTop.setSpeed(100);
-  stepperBottom.setSpeed(100);
-
-  // Sequence to reset all pins
-  // TODO
-
-  // Reset back to start position
-}
-
-// Reset x/y position variables and pinStates' values`
-void resetPositionValues()
-{
-  for (int i = 0; i < quadrantTotal; i++)
-    pinStates[i] = 0;
-}
-
-// Will move to state change pins and initiate them
-void updatePinStates(int *stateChanges)
-{
-  Serial.println("Updating pins to reflect the current environment . . .");
-}
-
-// Will compare the current pin states to the new pin states and return an array of the updated positions
-/*int *pinStateChanges(int *currStates, int *newStates) {
-  int stateChanges[16];
-  int index = 0;
-
-  Serial.println("Obtaining the pin positions that have a state change . . .");
-  for (int i = 0; i < sizeof(currStates); i++)
+  stepperTop.moveTo(-560);
+  stepperBottom.moveTo(-560);
+  while (stepperTop.currentPosition() != -560 || stepperBottom.currentPosition() != -560)
   {
-    if (currStates[i] != newStates[i])
-    {
-      stateChanges[index] = i;
-      index++;
-    }
-  }
-
-  return stateChanges;
-}
-*/
-
-// Moves side-to-side "len" mm amount
-void sideMM(long len)
-{
-  unsigned long starttime = millis();
-  unsigned long endtime = starttime;
-  while ((endtime - starttime) <= 3000)
-  {
-    // code here
-    // Moving len mm side-to-side
-    stepperTop.moveTo(stepsMoveY * len);
-    stepperTop.run();
-    endtime = millis();
-  }
-
-  delay(1000);
-
-  starttime = millis();
-  endtime = starttime;
-  while ((endtime - starttime) <= 3000)
-  {
-    // code here
-    stepperTop.moveTo(-stepsMoveY * len);
-    stepperTop.run();
-    endtime = millis();
-  }
-
-  delay(1000);
-}
-
-// Rotates rod back and forth len amount
-void rotate(long len)
-{
-  unsigned long starttime = millis();
-  unsigned long endtime = starttime;
-  while ((endtime - starttime) <= 3000)
-  {
-    // code here
-    // Rotate len amount
-    stepperTop.moveTo(-len);
-    stepperBottom.moveTo(-len);
     stepperTop.run();
     stepperBottom.run();
-    endtime = millis();
   }
 
-  delay(1000);
+  stepperTop.setCurrentPosition(0);
+  stepperBottom.setCurrentPosition(0);
 
-  starttime = millis();
-  endtime = starttime;
-  while ((endtime - starttime) <= 3000)
+  stepperTop.moveTo(-15 * stepsMoveY);
+  while (stepperTop.currentPosition() != -15 * stepsMoveY)
   {
-    // code here
-    stepperTop.moveTo(len);
-    stepperBottom.moveTo(len);
+    stepperTop.run();
+  }
+
+  stepperTop.setCurrentPosition(0);
+  stepperBottom.setCurrentPosition(0);
+
+  stepperTop.moveTo(800);
+  stepperBottom.moveTo(800);
+  while (stepperTop.currentPosition() != 800 || stepperBottom.currentPosition() != 800)
+  {
     stepperTop.run();
     stepperBottom.run();
-    endtime = millis();
   }
 
-  delay(1000);
+  stepperTop.setCurrentPosition(0);
+  stepperBottom.setCurrentPosition(0);
+
+  stepperTop.moveTo(15 * stepsMoveY);
+  while (stepperTop.currentPosition() != 15 * stepsMoveY)
+  {
+    stepperTop.run();
+  }
+
+  stepperTop.setCurrentPosition(0);
+  stepperBottom.setCurrentPosition(0);
 }
 
-// From reset, moves to "pos" position
-// ****NOTE: DID NOT CODE FROM RESET AS RESET WAS NOT INITIATED/FOUND YET****
-void moveToPos(int pos)
-{
-  unsigned long starttime;
-  unsigned long endtime;
+// Off reset, to get to first ramp 30 degrees clockwise; then to get between pins rotate 100 degrees each
+// To activate x pin location, will shift rod to avoid accidental activation, rotate to position, then shift back same amount
 
-  switch (pos)
+// Distance from pin to off switch = 5 mm
+// Distance from pin to pin (from shifting) = 29 mm
+
+void offset(long len)
+{
+  stepperTop.moveTo(len * stepsMoveY);
+  while (stepperTop.currentPosition() != len * stepsMoveY)
   {
-  // rotate 270, move 9 mm
-  case 1:
-    Serial.println("Going to position 1!");
-    starttime = millis();
-    endtime = starttime;
-    while ((endtime - starttime) <= 3000)
+    stepperTop.run();
+  }
+
+  stepperTop.setCurrentPosition(0);
+}
+
+// Will move just before given pin location from newPos
+void moveTo(int newPos)
+{
+  switch (newPos)
+  {
+  case 0:
+    Serial.println("Moving to position 0");
+    offset(-5);
+
+    stepperTop.moveTo(65);
+    stepperBottom.moveTo(65);
+    while (stepperTop.currentPosition() != 65 || stepperBottom.currentPosition() != 65)
     {
-      // Serial.println("1st while");
-      stepperTop.moveTo(-270);
-      stepperBottom.moveTo(-270);
       stepperTop.run();
       stepperBottom.run();
-      endtime = millis();
     }
-    starttime = millis();
-    endtime = starttime;
-    while ((endtime - starttime) <= 3000)
-    {
-      // Serial.println("2nd while");
-      stepperTop.moveTo(-stepsMoveY * 9);
-      stepperTop.run();
-      endtime = millis();
-    }
+
+    delay(2000);
+    resetSpinner();
     break;
 
-  default:
-    Serial.println("Unknown input given!");
+  case 1:
+    Serial.println("Moving to position 1");
+    offset(-5);
+
+    stepperTop.moveTo(140);
+    stepperBottom.moveTo(140);
+    while (stepperTop.currentPosition() != 140 || stepperBottom.currentPosition() != 140)
+    {
+      stepperTop.run();
+      stepperBottom.run();
+    }
+
+    delay(2000);
+    resetSpinner();
+    break;
+
+  case 2:
+    Serial.println("Moving to position 2");
+    offset(-5);
+
+    stepperTop.moveTo(240);
+    stepperBottom.moveTo(240);
+    while (stepperTop.currentPosition() != 240 || stepperBottom.currentPosition() != 240)
+    {
+      stepperTop.run();
+      stepperBottom.run();
+    }
+
+    delay(2000);
+    resetSpinner();
+    break;
+
+  case 3:
+    Serial.println("Moving to position 3");
+    offset(-5);
+
+    stepperTop.moveTo(300);
+    stepperBottom.moveTo(300);
+    while (stepperTop.currentPosition() != 300 || stepperBottom.currentPosition() != 300)
+    {
+      stepperTop.run();
+      stepperBottom.run();
+    }
+
+    delay(2000);
+    resetSpinner();
+    break;
+
+  case 4:
+    Serial.println("Moving to position 4");
+    offset(-5);
+
+    stepperTop.moveTo(400);
+    stepperBottom.moveTo(400);
+    while (stepperTop.currentPosition() != 400 || stepperBottom.currentPosition() != 400)
+    {
+      stepperTop.run();
+      stepperBottom.run();
+    }
+
+    delay(2000);
+    resetSpinner();
+    break;
+
+  case 5:
+    Serial.println("Moving to position 5");
+    offset(-5);
+
+    stepperTop.moveTo(470);
+    stepperBottom.moveTo(470);
+    while (stepperTop.currentPosition() != 470 || stepperBottom.currentPosition() != 470)
+    {
+      stepperTop.run();
+      stepperBottom.run();
+    }
+
+    delay(2000);
+    resetSpinner();
+    break;
+
+  case 6:
+    Serial.println("Moving to position 6");
+    offset(-5);
+
+    stepperTop.moveTo(500);
+    stepperBottom.moveTo(500);
+    while (stepperTop.currentPosition() != 500 || stepperBottom.currentPosition() != 500)
+    {
+      stepperTop.run();
+      stepperBottom.run();
+    }
+
+    delay(2000);
+    resetSpinner();
+    break;
+
+  case 7:
+    Serial.println("Moving to position 7");
+    offset(-5);
+
+    stepperTop.moveTo(620);
+    stepperBottom.moveTo(620);
+    while (stepperTop.currentPosition() != 620 || stepperBottom.currentPosition() != 620)
+    {
+      stepperTop.run();
+      stepperBottom.run();
+    }
+
+    delay(2000);
+    resetSpinner();
+    break;
+
+  case 8:
+    Serial.println("Moving to position 8");
+    offset(-5);
+
+    stepperTop.moveTo(680);
+    stepperBottom.moveTo(680);
+    while (stepperTop.currentPosition() != 680 || stepperBottom.currentPosition() != 680)
+    {
+      stepperTop.run();
+      stepperBottom.run();
+    }
+
+    delay(2000);
+    resetSpinner();
     break;
   }
-
-  Serial.println("Ended moveToPos function!");
-  return;
 }
 
 void setup()
@@ -236,12 +281,17 @@ void setup()
 
   // Call reset() functions to reset position and corresponding values
   resetSpinner();
-  // resetPins();
-  // resetPositionValues();
 }
+
+int i = 0;
 
 void loop()
 {
-  // sideMM(10);
-  // rotate(400);
+
+  if (i < 9)
+  {
+    moveTo(i);
+    i++;
+    go = false;
+  }
 }
