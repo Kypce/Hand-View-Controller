@@ -12,8 +12,8 @@
 
 // *** GLOBAL VARIABLE DECLARATIONS
 // Setup the pin grid size
-const int x = 4;
-const int y = 4;
+const int x = 3;
+const int y = 3;
 const int quadrantTotal = x * y;
 
 // mm for rotation
@@ -26,7 +26,7 @@ long stepsMoveY = 273.97;
 // Size 16 array for the states of the pins (0 = off, 1 = half, 2 = full)
 int pinStates[quadrantTotal];
 
-// Used to break the loop in void loop() and go to the doNothing() function
+// Used to break the loop in void loop()
 boolean go = true;
 
 // Setup bluetooth connection and stepper motors 1 and 2
@@ -34,11 +34,6 @@ SoftwareSerial Bluetooth(0, 1); // RX, TX
 AccelStepper stepperTop(1, 2, 3);
 AccelStepper stepperBottom(1, 4, 5);
 ezButton limitSwitch(6);
-
-// Literally does nothing, used to psuedo-break out of void loop()
-void doNothing() {
-  return;
-}
 
 // Will reset the spinner to the "first position"
 void resetSpinner() {
@@ -164,6 +159,11 @@ void rotate(long len) {
   delay(1000);
 }
 
+// Will initiate the pin to off, half, or full depending on "choice"
+void initiatePin(int choice) {
+
+}
+
 // From reset, moves to "pos" position
 // ****NOTE: DID NOT CODE FROM RESET AS RESET WAS NOT INITIATED/FOUND YET****
 void moveToPos(int pos) {
@@ -172,7 +172,7 @@ void moveToPos(int pos) {
   
   switch(pos) {
     // rotate 270, move 9 mm
-    case 1:
+    case 0:
       Serial.println("Going to position 1!");
       starttime = millis();
       endtime = starttime;
@@ -192,6 +192,30 @@ void moveToPos(int pos) {
         stepperTop.run();
         endtime = millis();
       }
+      break;
+
+    case 1:
+      break;
+
+    case 2:
+      break;
+
+    case 3:
+      break;
+
+    case 4:
+      break;
+
+    case 5:
+      break;
+
+    case 6:
+      break;
+
+    case 7:
+      break;
+
+    case 8:
       break;
 
     default:
@@ -224,10 +248,9 @@ void setup() {
 void loop() {
   //sideMM(10);
   //rotate(400);
-  
+
   if(go) {
     moveToPos(1);
     go = false;
-  } else
-    doNothing();
+  }
 }
