@@ -6,9 +6,9 @@
 // Define "home_switches" for resetting the spinner and pins
 
 // Rotation => Same sign for both moveTo() functions
-  // Negative rotates clockwise while positive rotaes it counter-clockwise (from perspective of holding device)
+// Negative rotates clockwise while positive rotaes it counter-clockwise (from perspective of holding device)
 // Side-to-side => one moveTo() function for a motor
-  // Negative moves it "up" while positive moves it "down" (from perspective of holding it)
+// Negative moves it "up" while positive moves it "down" (from perspective of holding it)
 
 // *** GLOBAL VARIABLE DECLARATIONS
 // Setup the pin grid size
@@ -36,14 +36,16 @@ AccelStepper stepperBottom(1, 4, 5);
 ezButton limitSwitch(6);
 
 // Literally does nothing, used to psuedo-break out of void loop()
-void doNothing() {
+void doNothing()
+{
   return;
 }
 
 // Will reset the spinner to the "first position"
-void resetSpinner() {
-  stepperTop.setSpeed(500);
-  stepperBottom.setSpeed(500);
+void resetSpinner()
+{
+  stepperTop.setSpeed(800);
+  stepperBottom.setSpeed(600);
 
   Serial.println("Stepper motors are homing to start position . . .");
   while (true)
@@ -57,6 +59,15 @@ void resetSpinner() {
     stepperTop.runSpeed();
     stepperBottom.runSpeed();
   }
+  stepperTop.setSpeed(-600);
+  unsigned long starttime = millis();
+  unsigned long endtime = starttime;
+  while ((endtime - starttime) <= 200)
+  {
+    stepperTop.moveTo(0.1);
+    stepperTop.run();
+    endtime = millis();
+  }
   stepperTop.setCurrentPosition(0);
   stepperBottom.setCurrentPosition(0);
   stepperTop.setSpeed(2000);
@@ -64,7 +75,8 @@ void resetSpinner() {
 }
 
 // Will reset all pins to their off position
-void resetPins() {
+void resetPins()
+{
   stepperTop.setSpeed(100);
   stepperBottom.setSpeed(100);
 
@@ -75,13 +87,15 @@ void resetPins() {
 }
 
 // Reset x/y position variables and pinStates' values`
-void resetPositionValues() {
+void resetPositionValues()
+{
   for (int i = 0; i < quadrantTotal; i++)
     pinStates[i] = 0;
 }
 
 // Will move to state change pins and initiate them
-void updatePinStates(int *stateChanges) {
+void updatePinStates(int *stateChanges)
+{
   Serial.println("Updating pins to reflect the current environment . . .");
 }
 
@@ -105,7 +119,8 @@ void updatePinStates(int *stateChanges) {
 */
 
 // Moves side-to-side "len" mm amount
-void sideMM(long len) {
+void sideMM(long len)
+{
   unsigned long starttime = millis();
   unsigned long endtime = starttime;
   while ((endtime - starttime) <= 3000)
@@ -133,7 +148,8 @@ void sideMM(long len) {
 }
 
 // Rotates rod back and forth len amount
-void rotate(long len) {
+void rotate(long len)
+{
   unsigned long starttime = millis();
   unsigned long endtime = starttime;
   while ((endtime - starttime) <= 3000)
@@ -166,45 +182,49 @@ void rotate(long len) {
 
 // From reset, moves to "pos" position
 // ****NOTE: DID NOT CODE FROM RESET AS RESET WAS NOT INITIATED/FOUND YET****
-void moveToPos(int pos) {
+void moveToPos(int pos)
+{
   unsigned long starttime;
   unsigned long endtime;
-  
-  switch(pos) {
-    // rotate 270, move 9 mm
-    case 1:
-      Serial.println("Going to position 1!");
-      starttime = millis();
-      endtime = starttime;
-      while ((endtime - starttime) <= 3000) {
-        //Serial.println("1st while");
-        stepperTop.moveTo(-270);
-        stepperBottom.moveTo(-270);
-        stepperTop.run();
-        stepperBottom.run();
-        endtime = millis();
-      }
-      starttime = millis();
-      endtime = starttime;
-      while ((endtime - starttime) <= 3000) {
-        //Serial.println("2nd while");
-        stepperTop.moveTo(-stepsMoveY * 9);
-        stepperTop.run();
-        endtime = millis();
-      }
-      break;
 
-    default:
-      Serial.println("Unknown input given!");
-      break;
+  switch (pos)
+  {
+  // rotate 270, move 9 mm
+  case 1:
+    Serial.println("Going to position 1!");
+    starttime = millis();
+    endtime = starttime;
+    while ((endtime - starttime) <= 3000)
+    {
+      // Serial.println("1st while");
+      stepperTop.moveTo(-270);
+      stepperBottom.moveTo(-270);
+      stepperTop.run();
+      stepperBottom.run();
+      endtime = millis();
+    }
+    starttime = millis();
+    endtime = starttime;
+    while ((endtime - starttime) <= 3000)
+    {
+      // Serial.println("2nd while");
+      stepperTop.moveTo(-stepsMoveY * 9);
+      stepperTop.run();
+      endtime = millis();
+    }
+    break;
+
+  default:
+    Serial.println("Unknown input given!");
+    break;
   }
 
   Serial.println("Ended moveToPos function!");
   return;
 }
 
-
-void setup() {
+void setup()
+{
   Bluetooth.begin(9600);
   Serial.begin(9600);
   Serial.println("Waiting for command...");
@@ -221,13 +241,8 @@ void setup() {
   // resetPositionValues();
 }
 
-void loop() {
-  //sideMM(10);
-  //rotate(400);
-  
-  if(go) {
-    moveToPos(1);
-    go = false;
-  } else
-    doNothing();
+void loop()
+{
+  // sideMM(10);
+  // rotate(400);
 }
