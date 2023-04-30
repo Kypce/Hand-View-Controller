@@ -125,7 +125,7 @@ void rotateRod(long len)
   stepperBottom.setCurrentPosition(0);
 }
 
-// Updates currSett with new state
+// Updates currSett[] with new state
 void updateSett(int update)
 {
   if (currSett[update] == 0)
