@@ -182,15 +182,15 @@ void resetSpinner()
   stepperBottom.setSpeed(2000);
 
   // Rotates rod to "empty" slot on rod
-  rotateRod(-560);
+  rotateRod(degreesToSteps(-270));
 
   // Moves rod up "15 mm"
   upDownMove(-15);
 
   // Rotates rod 360 degrees
-  rotateRod(800);
+  rotateRod(degreesToSteps(360));
 
-  // Moves rod down "15 mm"
+  // Moves rod down "5 mm"
   upDownMove(5);
 }
 
